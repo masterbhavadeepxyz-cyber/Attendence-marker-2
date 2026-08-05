@@ -1,0 +1,17 @@
+{
+  "name": "quickcheck-backend",
+  "version": "2.0.0",
+  "description": "QuickCheck Backend Node.js Express API with Supabase SDK",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickCheck - Modern Attendance Marking App</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen transition-colors duration-300">
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Top Navigation Header -->
+    <header class="glass-card rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-slate-800 shadow-xl">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+          <i class="fa-solid fa-clipboard-user text-2xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+              QuickCheck
+            </h1>
+            <span id="storage-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Live Sync
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Fast & Modern Attendance Dashboard</p>
+        </div>
+      </div>
+
+      <!-- Header Controls: Date & Dark Mode Toggle -->
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+        <!-- Date Selector Group -->
+        <div class="flex items-center bg-slate-800/80 border border-slate-700/80 rounded-xl p-1 shadow-inner">
+          <button id="btn-prev-day" class="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-lg transition-colors" title="Previous Day">
+            <i class="fa-solid fa-chevron-left text-xs"></i>
+          </button>
+          <div class="relative flex items-center px-2">
+            <i class="fa-regular fa-calendar text-emerald-400 text-sm mr-2 pointer-events-none"></i>
+            <input type="date" id="attendance-date" class="bg-transparent text-sm font-semibold text-slate-200 focus:outline-none cursor-pointer" />
+          </div>
+          <button id="btn-next-day" class="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-lg transition-colors" title="Next Day">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
+          </button>
+          <button id="btn-today" class="ml-1 px-3 py-1 text-xs font-semibold bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 rounded-lg transition-colors">
+            Today
+          </button>
+        </div>
+
+        <!-- Dark/Light Theme Toggle -->
+        <button id="btn-theme-toggle" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 rounded-xl transition-all shadow-sm">
+          <i id="theme-icon" class="fa-solid fa-sun text-amber-400 text-lg"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Metrics Summary Cards Grid -->
+    <section class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <!-- Total Members -->
+      <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all shadow-md">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Total Team</span>
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+            <i class="fa-solid fa-users text-sm"></i>
+          </div>
+        </div>
+        <div>
+          <div id="stat-total" class="text-2xl sm:text-3xl font-extrabold text-slate-100">0</div>
+          <span class="text-xs text-slate-400">Registered Members</span>
+        </div>
+      </div>
+
+      <!-- Present Metric -->
+      <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-col justify-between hover:border-emerald-500/30 transition-all shadow-md">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Present</span>
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+            <i class="fa-solid fa-user-check text-sm"></i>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <div id="stat-present" class="text-2xl sm:text-3xl font-extrabold text-emerald-400">0</div>
+            <span id="stat-present-pct" class="text-xs font-bold text-emerald-400/80">0%</span>
+          </div>
+          <span class="text-xs text-slate-400">On Time Today</span>
+        </div>
+      </div>
+
+      <!-- Late Metric -->
+      <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-col justify-between hover:border-amber-500/30 transition-all shadow-md">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-amber-400">Late</span>
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+            <i class="fa-solid fa-clock text-sm"></i>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <div id="stat-late" class="text-2xl sm:text-3xl font-extrabold text-amber-400">0</div>
+            <span id="stat-late-pct" class="text-xs font-bold text-amber-400/80">0%</span>
+          </div>
+          <span class="text-xs text-slate-400">Delayed Arrival</span>
+        </div>
+      </div>
+
+      <!-- Absent Metric -->
+      <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-col justify-between hover:border-rose-500/30 transition-all shadow-md">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-rose-400">Absent</span>
+          <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center">
+            <i class="fa-solid fa-user-xmark text-sm"></i>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <div id="stat-absent" class="text-2xl sm:text-3xl font-extrabold text-rose-400">0</div>
+            <span id="stat-absent-pct" class="text-xs font-bold text-rose-400/80">0%</span>
+          </div>
+          <span class="text-xs text-slate-400">Not Present</span>
+        </div>
+      </div>
+
+      <!-- Overall Attendance Rate Progress Card -->
+      <div class="col-span-2 md:col-span-4 lg:col-span-1 glass-card rounded-2xl p-4 border border-slate-800 flex flex-col justify-between hover:border-teal-500/30 transition-all shadow-md">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-400">Attendance Rate</span>
+          <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center">
+            <i class="fa-solid fa-chart-line text-sm"></i>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-baseline justify-between">
+            <div id="stat-rate" class="text-2xl sm:text-3xl font-extrabold text-teal-300">0%</div>
+            <span id="stat-unmarked-count" class="text-xs text-slate-400">0 Unmarked</span>
+          </div>
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700/60">
+            <div id="progress-bar" class="progress-bar-fill h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toolbar & Filter Controls -->
+    <section class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      
+      <!-- Left Controls: Search & Dropdown Filters -->
+      <div class="flex flex-wrap items-center gap-3 flex-1">
+        <!-- Search Bar -->
+        <div class="relative min-w-[200px] flex-1 sm:flex-initial sm:w-64">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+          <input type="text" id="search-input" placeholder="Search by name, role..." class="w-full bg-slate-800/90 text-slate-200 placeholder-slate-400 pl-9 pr-8 py-2 rounded-xl text-sm border border-slate-700/80 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all" />
+          <button id="btn-clear-search" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Department Filter -->
+        <select id="dept-filter" class="bg-slate-800/90 text-slate-200 py-2 px-3 rounded-xl text-sm border border-slate-700/80 focus:outline-none focus:border-emerald-500 transition-all cursor-pointer">
+          <option value="ALL">All Departments</option>
+          <option value="Engineering">Engineering</option>
+          <option value="Design">Design</option>
+          <option value="Product">Product</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Operations">Operations</option>
+        </select>
+
+        <!-- Status Filter Tabs -->
+        <div class="flex items-center bg-slate-800/80 p-1 rounded-xl border border-slate-700/80 overflow-x-auto">
+          <button data-filter="ALL" class="status-tab px-3 py-1 text-xs font-semibold rounded-lg text-white bg-slate-700 transition-all">All</button>
+          <button data-filter="present" class="status-tab px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-emerald-400 transition-all">Present</button>
+          <button data-filter="late" class="status-tab px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-amber-400 transition-all">Late</button>
+          <button data-filter="absent" class="status-tab px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-rose-400 transition-all">Absent</button>
+          <button data-filter="unmarked" class="status-tab px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition-all">Unmarked</button>
+        </div>
+      </div>
+
+      <!-- Right Controls: Actions (Bulk, Export, Add Member) -->
+      <div class="flex flex-wrap items-center justify-end gap-2.5">
+        <!-- Quick Bulk Actions Menu -->
+        <button id="btn-mark-all" class="px-3.5 py-2 text-xs font-semibold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-double-check"></i>
+          Mark All Present
+        </button>
+
+        <button id="btn-reset-day" class="px-3.5 py-2 text-xs font-semibold bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700 border border-slate-700 rounded-xl transition-all flex items-center gap-1.5" title="Reset all attendance for this date">
+          <i class="fa-solid fa-rotate-left"></i>
+          Reset Day
+        </button>
+
+        <!-- Export CSV Button -->
+        <button id="btn-export-csv" class="px-3.5 py-2 text-xs font-bold bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-xl shadow-lg shadow-teal-500/20 border border-teal-400/30 transition-all flex items-center gap-1.5 active:scale-95">
+          <i class="fa-solid fa-file-csv text-sm"></i>
+          Export CSV
+        </button>
+
+        <!-- Add New Member Button -->
+        <button id="btn-open-add-modal" class="px-3.5 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 border border-indigo-500/30 transition-all flex items-center gap-1.5 active:scale-95">
+          <i class="fa-solid fa-plus"></i>
+          Add Member
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Attendance Roster Table -->
+    <main class="glass-card rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-300 border-collapse">
+          <thead>
+            <tr class="bg-slate-800/80 border-b border-slate-700/80 text-xs uppercase font-bold text-slate-400 tracking-wider">
+              <th class="py-4 px-6">Team Member</th>
+              <th class="py-4 px-4 hidden sm:table-cell">Department & Role</th>
+              <th class="py-4 px-4 text-center">Current Status</th>
+              <th class="py-4 px-6 text-center">One-Tap Action</th>
+              <th class="py-4 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="member-table-body" class="divide-y divide-slate-800/60">
+            <!-- Dynamic Member Rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State Container -->
+      <div id="empty-state" class="hidden py-16 px-4 text-center">
+        <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4 text-slate-500 border border-slate-700">
+          <i class="fa-solid fa-user-slash text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-200 mb-1">No Members Found</h3>
+        <p class="text-sm text-slate-400 max-w-sm mx-auto mb-4">No team members match your current search query or status filter.</p>
+        <button id="btn-clear-filters" class="px-4 py-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 rounded-xl transition-all">
+          Clear Filters
+        </button>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800/60">
+      <p>QuickCheck Attendance Marking App &bull; Built with Vanilla JS & Tailwind CSS</p>
+    </footer>
+
+  </div>
+
+  <!-- Add Member Modal Dialog -->
+  <div id="add-member-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden animate-fade-in">
+    <div class="glass-card bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+            <i class="fa-solid fa-user-plus text-sm"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-100">Add New Team Member</h3>
+        </div>
+        <button id="btn-close-modal" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="add-member-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Full Name *</label>
+          <input type="text" id="input-member-name" required placeholder="e.g. Jane Doe" class="w-full bg-slate-800 text-slate-100 px-3.5 py-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Department *</label>
+            <select id="input-member-dept" required class="w-full bg-slate-800 text-slate-100 px-3 py-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm">
+              <option value="Engineering">Engineering</option>
+              <option value="Design">Design</option>
+              <option value="Product">Product</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Operations">Operations</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Role / Position</label>
+            <input type="text" id="input-member-role" placeholder="e.g. Developer" class="w-full bg-slate-800 text-slate-100 px-3.5 py-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Email Address</label>
+          <input type="email" id="input-member-email" placeholder="e.g. jane@company.com" class="w-full bg-slate-800 text-slate-100 px-3.5 py-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm" />
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+          <button type="button" id="btn-cancel-modal" class="px-4 py-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/30 transition-all">
+            Save Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Area -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>

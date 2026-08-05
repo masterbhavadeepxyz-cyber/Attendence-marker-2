@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+frontend/.env
+backend/.env
+
+# Local Database & Logs
+backend/data/
+*.log
+
+# System & OS files
+.DS_Store
+Thumbs.db

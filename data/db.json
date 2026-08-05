@@ -1,0 +1,63 @@
+﻿{
+    "attendance":  {
+
+                   },
+    "members":  [
+                    {
+                        "email":  "sarah.j@company.com",
+                        "department":  "Engineering",
+                        "name":  "Sarah Jenkins",
+                        "id":  "mem-1",
+                        "role":  "Lead Developer"
+                    },
+                    {
+                        "email":  "alex.r@company.com",
+                        "department":  "Design",
+                        "name":  "Alex Rivera",
+                        "id":  "mem-2",
+                        "role":  "Senior UX Designer"
+                    },
+                    {
+                        "email":  "michael.c@company.com",
+                        "department":  "Product",
+                        "name":  "Michael Chen",
+                        "id":  "mem-3",
+                        "role":  "Product Manager"
+                    },
+                    {
+                        "email":  "priya.p@company.com",
+                        "department":  "Engineering",
+                        "name":  "Priya Patel",
+                        "id":  "mem-4",
+                        "role":  "Frontend Engineer"
+                    },
+                    {
+                        "email":  "david.k@company.com",
+                        "department":  "Marketing",
+                        "name":  "David Kim",
+                        "id":  "mem-5",
+                        "role":  "Marketing Specialist"
+                    },
+                    {
+                        "email":  "emily.w@company.com",
+                        "department":  "Operations",
+                        "name":  "Emily Watson",
+                        "id":  "mem-6",
+                        "role":  "Operations Lead"
+                    },
+                    {
+                        "email":  "carlos.m@company.com",
+                        "department":  "Design",
+                        "name":  "Carlos Mendez",
+                        "id":  "mem-7",
+                        "role":  "Visual Designer"
+                    },
+                    {
+                        "email":  "james.w@company.com",
+                        "department":  "Engineering",
+                        "name":  "James Wilson",
+                        "id":  "mem-8",
+                        "role":  "DevOps Engineer"
+                    }
+                ]
+}

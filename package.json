@@ -1,0 +1,24 @@
+{
+  "name": "quickcheck-attendance",
+  "version": "1.0.0",
+  "description": "Lightweight Attendance Marking Web Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "attendance",
+    "dashboard",
+    "express",
+    "tailwind",
+    "quickcheck"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
