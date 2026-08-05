@@ -9,7 +9,7 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Enable CORS for all origins (or specific frontend domains)
+// CORS configuration for Render deployment
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -25,8 +25,8 @@ if (fs.existsSync(frontendPath)) {
 }
 
 // Initialize Supabase Client
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://aikzkblsabagqfpsdwbs.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpa3prYmxzYWJhZ3FmcHNkd2JzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTkxNzkxNCwiZXhwIjoyMTAxNDkzOTE0fQ.afoKRxJp1Ti7hi0NPXjm2NdsmY9qULUUHR-ZhSv6tPU';
 
 let supabase = null;
 let isSupabaseConfigured = false;
@@ -40,10 +40,10 @@ if (SUPABASE_URL && SUPABASE_KEY && !SUPABASE_URL.includes('your-supabase-projec
     console.error(`⚠️ Supabase connection failed:`, err.message);
   }
 } else {
-  console.log(`ℹ️ Supabase credentials not set. Operating in local database fallback mode.`);
+  console.log(`ℹ️ Operating in fallback database mode.`);
 }
 
-// Fallback Local Storage Setup
+// Local Storage Fallback Data Setup
 const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
@@ -77,25 +77,27 @@ function saveLocalDB(data) {
   fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 }
 
+// Health checks for Render
+app.get('/healthz', (req, res) => res.status(200).send('OK'));
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    mode: isSupabaseConfigured ? 'Supabase Database' : 'Local Storage Fallback',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Root Route
 app.get('/', (req, res) => {
   if (fs.existsSync(path.join(frontendPath, 'index.html'))) {
     return res.sendFile(path.join(frontendPath, 'index.html'));
   }
-  res.json({
+  res.status(200).json({
     app: "QuickCheck Attendance Backend API",
     status: "online",
     health: "/api/health",
     members: "/api/members"
-  });
-});
-
-// REST APIs
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    mode: isSupabaseConfigured ? 'Supabase Database' : 'Local File Storage Fallback',
-    timestamp: new Date().toISOString()
   });
 });
 
@@ -219,10 +221,50 @@ app.post('/api/attendance', async (req, res) => {
   }
 });
 
-// Start Express Server
-app.listen(PORT, () => {
+// POST /api/attendance/bulk
+app.post('/api/attendance/bulk', async (req, res) => {
+  const { date, action, status } = req.body;
+  if (!date || !action) return res.status(400).json({ error: "date and action are required" });
+
+  const now = new Date();
+  const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  if (isSupabaseConfigured) {
+    if (action === 'mark_all') {
+      const { data: members } = await supabase.from('members').select('id');
+      if (members && members.length > 0) {
+        const rows = members.map(m => ({
+          date,
+          member_id: m.id,
+          status: status || 'present',
+          time_logged: timeString
+        }));
+        await supabase.from('attendance_logs').upsert(rows, { onConflict: 'date,member_id' });
+      }
+    } else if (action === 'reset') {
+      await supabase.from('attendance_logs').delete().eq('date', date);
+    }
+    return res.json({ date, success: true });
+  } else {
+    const db = loadLocalDB();
+    if (!db.attendance[date]) db.attendance[date] = {};
+
+    if (action === 'mark_all') {
+      db.members.forEach(member => {
+        db.attendance[date][member.id] = { status: status || 'present', time: timeString, note: "" };
+      });
+    } else if (action === 'reset') {
+      db.attendance[date] = {};
+    }
+    saveLocalDB(db);
+    res.json({ date, records: db.attendance[date] });
+  }
+});
+
+// Start Express Server - Bind explicitly to 0.0.0.0 for Render
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n==================================================`);
-  console.log(`🚀 QuickCheck Server running on port ${PORT}`);
-  console.log(`Mode: ${isSupabaseConfigured ? 'Supabase' : 'Local Storage Fallback'}`);
+  console.log(`🚀 QuickCheck Server running on 0.0.0.0:${PORT}`);
+  console.log(`Mode: ${isSupabaseConfigured ? 'Supabase Database' : 'Local Storage Fallback'}`);
   console.log(`==================================================\n`);
 });

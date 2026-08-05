@@ -1,14 +1,8 @@
 /**
  * QuickCheck Frontend Configuration
- * Edit these settings or set them via Supabase project credentials.
  */
 window.QUICKCHECK_CONFIG = {
-  // Your Supabase Project URL (e.g., https://xyzcompany.supabase.co)
-  SUPABASE_URL: "https://your-supabase-project-id.supabase.co",
-  
-  // Your Supabase Public Anon Key
-  SUPABASE_ANON_KEY: "your-supabase-anon-key-here",
-
-  // Backend API Base URL (if using Node/Express proxy)
-  BACKEND_API_URL: "http://localhost:3000/api"
+  SUPABASE_URL: "https://aikzkblsabagqfpsdwbs.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpa3prYmxzYWJhZ3FmcHNkd2JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5MTc5MTQsImV4cCI6MjEwMTQ5MzkxNH0.bpSqY-uER6jbimzPVjnFZXH-PWZXhzsmZj9oSlv8gKk",
+  BACKEND_API_URL: "/api"
 };
