@@ -1,11 +1,14 @@
 {
   "name": "quickcheck-backend",
   "version": "2.0.0",
-  "description": "QuickCheck Backend Node.js Express API with Supabase SDK",
+  "description": "QuickCheck Backend Node.js Express API for Render & Supabase",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

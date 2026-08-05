@@ -9,9 +9,20 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// Enable CORS for all origins (or specific frontend domains)
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Serve static frontend files if hosted together
+const frontendPath = path.join(__dirname, '../frontend');
+if (fs.existsSync(frontendPath)) {
+  app.use(express.static(frontendPath));
+}
 
 // Initialize Supabase Client
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
@@ -29,7 +40,7 @@ if (SUPABASE_URL && SUPABASE_KEY && !SUPABASE_URL.includes('your-supabase-projec
     console.error(`⚠️ Supabase connection failed:`, err.message);
   }
 } else {
-  console.log(`ℹ️ Supabase credentials not set in backend/.env. Using local database storage fallback.`);
+  console.log(`ℹ️ Supabase credentials not set. Operating in local database fallback mode.`);
 }
 
 // Fallback Local Storage Setup
@@ -66,11 +77,24 @@ function saveLocalDB(data) {
   fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 }
 
+// Root Route
+app.get('/', (req, res) => {
+  if (fs.existsSync(path.join(frontendPath, 'index.html'))) {
+    return res.sendFile(path.join(frontendPath, 'index.html'));
+  }
+  res.json({
+    app: "QuickCheck Attendance Backend API",
+    status: "online",
+    health: "/api/health",
+    members: "/api/members"
+  });
+});
+
 // REST APIs
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    mode: isSupabaseConfigured ? 'Supabase Database' : 'Local File Storage',
+    mode: isSupabaseConfigured ? 'Supabase Database' : 'Local File Storage Fallback',
     timestamp: new Date().toISOString()
   });
 });
@@ -141,7 +165,6 @@ app.get('/api/attendance', async (req, res) => {
     const { data, error } = await supabase.from('attendance_logs').select('*').eq('date', date);
     if (error) return res.status(500).json({ error: error.message });
     
-    // Map array to dictionary object by member_id
     const recordsMap = {};
     (data || []).forEach(row => {
       recordsMap[row.member_id] = {
@@ -196,10 +219,10 @@ app.post('/api/attendance', async (req, res) => {
   }
 });
 
-// Start Server
+// Start Express Server
 app.listen(PORT, () => {
   console.log(`\n==================================================`);
-  console.log(`🚀 QuickCheck Server running at http://localhost:${PORT}`);
-  console.log(`Database Mode: ${isSupabaseConfigured ? 'Supabase' : 'Local Storage Fallback'}`);
+  console.log(`🚀 QuickCheck Server running on port ${PORT}`);
+  console.log(`Mode: ${isSupabaseConfigured ? 'Supabase' : 'Local Storage Fallback'}`);
   console.log(`==================================================\n`);
 });

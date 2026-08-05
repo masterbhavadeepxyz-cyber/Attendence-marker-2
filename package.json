@@ -1,24 +1,21 @@
 {
   "name": "quickcheck-attendance",
-  "version": "1.0.0",
-  "description": "Lightweight Attendance Marking Web Application",
-  "main": "server.js",
+  "version": "2.0.0",
+  "description": "QuickCheck Attendance Marking App Backend for Render & Supabase",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node backend/server.js",
+    "build": "cd backend && npm install",
+    "dev": "node backend/server.js"
   },
-  "keywords": [
-    "attendance",
-    "dashboard",
-    "express",
-    "tailwind",
-    "quickcheck"
-  ],
-  "author": "Antigravity",
-  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2"
   }
 }
